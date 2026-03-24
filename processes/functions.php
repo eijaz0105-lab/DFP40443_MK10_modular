@@ -68,6 +68,46 @@ function generateInvoice($namaPelanggan, $items, $jumlahBesar)
     ];
 }
 
+function handleOrderSubmission($data)
+{
+    $namaPelanggan = isset($_POST['nama_pelanggan'])
+        ? htmlspecialchars(trim($_POST['nama_pelanggan']), ENT_QUOTES, 'UTF-8')
+        : 'Pelanggan';
+
+    $tempahanInput = isset($_POST['tempahan']) ? $_POST['tempahan'] : [];
+
+    $orderResult = processOrder($data, $tempahanInput);
+    $itemTempahan = $orderResult['items'];
+    $jumlahBesar = $orderResult['jumlah_besar'];
+
+    if ($jumlahBesar == 0) {
+        echo "<script>alert('Sila pilih sekurang-kurangnya satu jenis biskut sebelum meneruskan tempahan.'); window.location.href='index.php?menu=tempah';</script>";
+        exit();
+    }
+
+    $_SESSION['invois_data'] = generateInvoice($namaPelanggan, $itemTempahan, $jumlahBesar);
+
+    header('Location: index.php?menu=invois');
+    exit();
+}
+
+function getPageTitle($menu)
+{
+    if ($menu === 'utama') {
+        return 'Biskut Klasik - Utama';
+    }
+
+    if ($menu === 'tempah') {
+        return 'Biskut Klasik - Borang Tempahan';
+    }
+
+    if ($menu === 'invois') {
+        return 'Biskut Klasik - Invois Tempahan';
+    }
+
+    return 'Menu tidak ditemukan';
+}
+
 function getActiveClass($currentMenu, $menuName)
 {
     return $currentMenu === $menuName ? 'active' : '';
